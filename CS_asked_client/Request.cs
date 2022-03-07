@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CS_asked_client
 {
-    internal class RequestClient
+    internal class Request
     {
         private readonly string _baseUrl;
         private readonly HttpClient _client;
 
-        public RequestClient(string baseUrl)
+        public Request(string baseUrl)
         {
             _baseUrl = baseUrl;
             _client = new HttpClient();
@@ -21,11 +18,24 @@ namespace CS_asked_client
 
         public async Task<HttpResponseMessage> Post(string path, Dictionary<string, string> data, string cookie = null)
         {
-            if (cookie == null) _client.DefaultRequestHeaders.Add("Cookie", cookie);
+            if (cookie == null) { _client.DefaultRequestHeaders.Add("Cookie", cookie); }
+            
             var encoded = new FormUrlEncodedContent(data);
             var response = await _client.PostAsync(_baseUrl + path, encoded).ConfigureAwait(false);
 
             return response;
+        }
+    }
+
+    public class RequestRes<T> where T : class
+    {
+        public bool success;
+        public T result;
+
+        public RequestRes(bool success, T result = null)
+        {
+            this.success = success;
+            this.result = result;
         }
     }
 }

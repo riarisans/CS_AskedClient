@@ -1,10 +1,6 @@
 ﻿using CS_asked_client.Util;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CS_asked_client
@@ -12,11 +8,11 @@ namespace CS_asked_client
     public class AskedClient
     {
         public string _cookie;
-        private readonly RequestClient _client;
+        private readonly Request _client;
 
         public AskedClient(string url = "https://asked.kr")
         {
-            _client = new RequestClient(url);
+            _client = new Request(url);
         }
 
         private string getCookie(string data)
@@ -24,20 +20,9 @@ namespace CS_asked_client
             return data.Split(' ')[0];
         }
 
-        public async Task<bool> SignUp(Account accountForm = null)
+        public async Task<RequestRes<Account>> SignUpAndLogin(Account accountForm)
         {
             Dictionary<string, string> data = new Dictionary<string, string>();
-
-            if (accountForm == null)
-            {
-                accountForm = new Account()
-                {
-                    Email = $"{RandomString.Create(10)}@helloasked.net",
-                    Id = RandomString.Create(11),
-                    Name = RandomString.Create(10),
-                    Password = RandomString.Create(14)
-                };
-            }
 
             data.Add("reg_name", accountForm.Name);
             data.Add("reg_email", accountForm.Email);
@@ -53,11 +38,46 @@ namespace CS_asked_client
                     if (header.Key == "Set-Cookie")
                     {
                         _cookie = getCookie(header.Value.First());
-                        return true;
+                        return new RequestRes<Account>(true, accountForm);
                     }
                 }
             }
-            return false;
+
+            return new RequestRes<Account>(false);
+        }
+
+        public async Task<RequestRes<Account>> SignUpAndLogin()
+        {
+            Account accountForm = new Account()
+            {
+                Email = $"{RandomString.Create(10)}@helloasked.net",
+                Id = RandomString.Create(11),
+                Name = RandomString.Create(10),
+                Password = RandomString.Create(14)
+            };
+
+            Dictionary<string, string> data = new Dictionary<string, string>();
+
+            data.Add("reg_name", accountForm.Name);
+            data.Add("reg_email", accountForm.Email);
+            data.Add("reg_id", accountForm.Id);
+            data.Add("reg_pw", accountForm.Password);
+
+            var response = await _client.Post("/sing_up.php", data);
+
+            if (response.IsSuccessStatusCode)
+            {
+                foreach (var header in response.Headers)
+                {
+                    if (header.Key == "Set-Cookie")
+                    {
+                        _cookie = getCookie(header.Value.First());
+                        return new RequestRes<Account>(true, accountForm);
+                    }
+                }
+            }
+
+            return new RequestRes<Account>(false);
         }
 
         public async Task<bool> Follow(long userId)
