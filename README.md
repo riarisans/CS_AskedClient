@@ -14,12 +14,13 @@ namespace Asked
         static async void DoFollow()
         {
             AskedClient client = new AskedClient();
-            var res = await client.SignUpAndLogin();
+            var res = await client.SignUpAndLogin(); // 랜덤계정생성
+            // var res = await client.SignUpAndLogin(AccountInfo); // 원하는 아이디, 이메일, 닉네임, 비번으로 생성
 
             if (res.success)
             {
                 Console.WriteLine(res.result.Id + " ", res.result.Password);
-                await client.Follow(123456789);
+                await client.Follow(123456789/* userId */);
             }
         }
     }
