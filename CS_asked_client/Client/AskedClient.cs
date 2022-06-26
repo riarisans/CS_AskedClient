@@ -29,7 +29,7 @@ namespace CS_asked_client
             data.Add("reg_id", accountForm.Id);
             data.Add("reg_pw", accountForm.Password);
 
-            var response = await _client.Post("/sing_up.php", data);
+            var response = await _client.Post("/sing_ups.php", data);
 
             if (response.IsSuccessStatusCode)
             {
@@ -56,28 +56,7 @@ namespace CS_asked_client
                 Password = RandomString.Create(14)
             };
 
-            Dictionary<string, string> data = new Dictionary<string, string>();
-
-            data.Add("reg_name", accountForm.Name);
-            data.Add("reg_email", accountForm.Email);
-            data.Add("reg_id", accountForm.Id);
-            data.Add("reg_pw", accountForm.Password);
-
-            var response = await _client.Post("/sing_up.php", data);
-
-            if (response.IsSuccessStatusCode)
-            {
-                foreach (var header in response.Headers)
-                {
-                    if (header.Key == "Set-Cookie")
-                    {
-                        _cookie = getCookie(header.Value.First());
-                        return new RequestRes<Account>(true, accountForm);
-                    }
-                }
-            }
-
-            return new RequestRes<Account>(false);
+            return SignUpAndLogin(accountForm);
         }
 
         public async Task<bool> Follow(long userId)
@@ -107,7 +86,7 @@ namespace CS_asked_client
             data.Add("makarong_bat", makarong.ToString());
             data.Add("show_user", "0");
 
-            var response = await _client.Post("/query.php?query=0", data, anonymous ? null : _cookie);
+            var response = await _client.Post("/query.php?query=100", data, anonymous ? null : _cookie);
 
             if (response.IsSuccessStatusCode)
             {
