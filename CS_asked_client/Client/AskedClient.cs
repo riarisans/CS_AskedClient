@@ -9,7 +9,7 @@ namespace CS_asked_client
     {
         public string _cookie;
         private readonly Request _client;
-
+        
         public AskedClient(string url = "https://asked.kr")
         {
             _client = new Request(url);
@@ -56,7 +56,7 @@ namespace CS_asked_client
                 Password = RandomString.Create(14)
             };
 
-            return SignUpAndLogin(accountForm);
+            return await SignUpAndLogin(accountForm);
         }
 
         public async Task<bool> Follow(long userId)
